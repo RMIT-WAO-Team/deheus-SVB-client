@@ -47,7 +47,7 @@ export default function Threejs() {
             document.body.appendChild(fragmentshader)
 
             script = document.createElement("script")
-            script.src = "/scripts/threejs-scripts.js"
+            script.src = "/scripts/threejs-scripts-test.js"
             document.body.appendChild(script)
 
             script2 = document.createElement("script")

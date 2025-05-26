@@ -1,17 +1,8 @@
 const preload = () => {
     let manager = new THREE.LoadingManager()
     manager.onLoad = function () {
-        new Environment(typo, particle)
+        new Environment(particle)
     }
-
-    var typo = null
-    const loader = new THREE.FontLoader(manager)
-    loader.load(
-        "https://res.cloudinary.com/dydre7amr/raw/upload/v1612950355/font_zsd4dr.json",
-        function (font) {
-            typo = font
-        }
-    )
 
     const particle = new THREE.TextureLoader(manager).load(
         "https://res.cloudinary.com/dfvtkoboz/image/upload/v1605013866/particle_a64uzf.png"
@@ -26,8 +17,7 @@ if (
 else document.addEventListener("DOMContentLoaded", preload)
 
 class Environment {
-    constructor(font, particle) {
-        this.font = font
+    constructor(particle) {
         this.particle = particle
         this.container = document.querySelector("#magic")
         this.scene = new THREE.Scene()
@@ -44,7 +34,6 @@ class Environment {
     setup() {
         this.createParticles = new CreateParticles(
             this.scene,
-            this.font,
             this.particle,
             this.camera,
             this.renderer
@@ -64,7 +53,7 @@ class Environment {
         //     1,
         //     10000
         // )
-        this.camera.position.set(0, 10, 100)
+        this.camera.position.set(0, 0, 600)
     }
 
     createRenderer() {
@@ -79,9 +68,13 @@ class Environment {
         this.renderer.outputEncoding = THREE.sRGBEncoding
         this.container.appendChild(this.renderer.domElement)
 
-        this.renderer.setAnimationLoop(() => {
-            this.render()
-        })
+        const loop = () => {
+            if (this.createParticles && this.createParticles.particles) {
+                this.render()
+            }
+            requestAnimationFrame(loop)
+        }
+        loop()
     }
 
     onWindowResize() {
@@ -96,9 +89,8 @@ class Environment {
 }
 
 class CreateParticles {
-    constructor(scene, font, particleImg, camera, renderer) {
+    constructor(scene, particleImg, camera, renderer) {
         this.scene = scene
-        this.font = font
         this.particleImg = particleImg
         this.camera = camera
         this.renderer = renderer
@@ -111,12 +103,10 @@ class CreateParticles {
         this.buttom = false
 
         this.data = {
-            text: "de heus",
             amount: 1500,
             particleSize: 1,
             particleColor: 0xffffff,
-            textSize: 16,
-            area: 250,
+            area: 10000,
             ease: 0.05,
         }
 
@@ -135,7 +125,7 @@ class CreateParticles {
         })
         this.planeArea = new THREE.Mesh(geometry, material)
         this.planeArea.visible = false
-        this.createText()
+        this.createImageParticles("/images/deheus-logo-slogan.png", 1.0, 100)
     }
 
     bindEvents() {
@@ -171,6 +161,8 @@ class CreateParticles {
     }
 
     render() {
+        if (!this.particles || !this.geometryCopy) return
+
         const time = ((0.001 * performance.now()) % 12) / 12
         const zigzagTime = (1 + Math.sin(time * 2 * Math.PI)) / 6
 
@@ -305,91 +297,115 @@ class CreateParticles {
         }
     }
 
-    createText() {
-        let thePoints = []
+    createImageParticles(imageUrl, scale = 1.0, alphaThreshold = 100) {
+        const img = new Image()
+        img.crossOrigin = "Anonymous"
+        img.src = imageUrl
 
-        let shapes = this.font.generateShapes(
-            this.data.text,
-            this.data.textSize
-        )
-        let geometry = new THREE.ShapeGeometry(shapes)
-        geometry.computeBoundingBox()
+        img.onload = () => {
+            const canvas = document.createElement("canvas")
+            const ctx = canvas.getContext("2d")
 
-        const xMid =
-            -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x)
-        const yMid =
-            (geometry.boundingBox.max.y - geometry.boundingBox.min.y) / 2.85
+            canvas.width = img.width * scale
+            canvas.height = img.height * scale
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
-        geometry.center()
+            const imageData = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            )
+            const pixels = imageData.data
 
-        let holeShapes = []
+            const points = []
+            const colors = []
+            const sizes = []
 
-        for (let q = 0; q < shapes.length; q++) {
-            let shape = shapes[q]
+            // Loop through image pixels, skipping borders
+            for (let y = 1; y < canvas.height - 1; y++) {
+                for (let x = 1; x < canvas.width - 1; x++) {
+                    const i = (y * canvas.width + x) * 4
+                    const alpha = pixels[i + 3]
 
-            if (shape.holes && shape.holes.length > 0) {
-                for (let j = 0; j < shape.holes.length; j++) {
-                    let hole = shape.holes[j]
-                    holeShapes.push(hole)
+                    if (alpha > alphaThreshold) {
+                        const getAlphaAt = (xx, yy) =>
+                            pixels[(yy * canvas.width + xx) * 4 + 3]
+                        const neighbors = [
+                            getAlphaAt(x - 1, y),
+                            getAlphaAt(x + 1, y),
+                            getAlphaAt(x, y - 1),
+                            getAlphaAt(x, y + 1),
+                        ]
+                        const isEdge = neighbors.some((a) => a < alphaThreshold)
+                        if (!isEdge) continue
+
+                        // Add the main particle
+                        const px = x - canvas.width / 2
+                        const py = -y + canvas.height / 2
+                        points.push(new THREE.Vector3(px, py, 0))
+                        colors.push(1.0, 1.0, 1.0)
+                        sizes.push(2.0)
+
+                        // Add surrounding particles to thicken the outline
+                        const offsets = [
+                            [-1, 0],
+                            [1, 0],
+                            [0, -1],
+                            [0, 1], // 4-neighbors
+                            [-1, -1],
+                            [-1, 1],
+                            [1, -1],
+                            [1, 1], // diagonals (optional)
+                        ]
+
+                        offsets.forEach(([dx, dy]) => {
+                            const nx = x + dx
+                            const ny = y + dy
+                            const neighborAlpha = getAlphaAt(nx, ny)
+                            if (neighborAlpha > alphaThreshold) {
+                                const npx = nx - canvas.width / 2
+                                const npy = -ny + canvas.height / 2
+                                points.push(new THREE.Vector3(npx, npy, 0))
+                                colors.push(1.0, 1.0, 1.0)
+                                sizes.push(2.0)
+                            }
+                        })
+                    }
                 }
             }
-        }
-        shapes.push.apply(shapes, holeShapes)
 
-        let colors = []
-        let sizes = []
+            const geometry = new THREE.BufferGeometry().setFromPoints(points)
+            geometry.setAttribute(
+                "customColor",
+                new THREE.Float32BufferAttribute(colors, 3)
+            )
+            geometry.setAttribute(
+                "size",
+                new THREE.Float32BufferAttribute(sizes, 1)
+            )
 
-        for (let x = 0; x < shapes.length; x++) {
-            let shape = shapes[x]
-
-            const amountPoints =
-                shape.type == "Path" ? this.data.amount / 2 : this.data.amount
-
-            let points = shape.getSpacedPoints(amountPoints)
-
-            points.forEach((element) => {
-                const a = new THREE.Vector3(element.x, element.y, 0)
-                thePoints.push(a)
-                colors.push(
-                    this.colorChange.r,
-                    this.colorChange.g,
-                    this.colorChange.b
-                )
-                sizes.push(1)
+            const material = new THREE.ShaderMaterial({
+                uniforms: {
+                    color: { value: new THREE.Color(0xffffff) },
+                    pointTexture: { value: this.particleImg },
+                },
+                vertexShader:
+                    document.getElementById("vertexshader").textContent,
+                fragmentShader:
+                    document.getElementById("fragmentshader").textContent,
+                blending: THREE.AdditiveBlending,
+                depthTest: false,
+                transparent: true,
             })
+
+            this.particles = new THREE.Points(geometry, material)
+            this.scene.add(this.particles)
+
+            // Store copy for interactive update logic
+            this.geometryCopy = new THREE.BufferGeometry()
+            this.geometryCopy.copy(this.particles.geometry)
         }
-
-        let geoParticles = new THREE.BufferGeometry().setFromPoints(thePoints)
-        geoParticles.translate(xMid, yMid, 0)
-
-        geoParticles.setAttribute(
-            "customColor",
-            new THREE.Float32BufferAttribute(colors, 3)
-        )
-        geoParticles.setAttribute(
-            "size",
-            new THREE.Float32BufferAttribute(sizes, 1)
-        )
-
-        const material = new THREE.ShaderMaterial({
-            uniforms: {
-                color: { value: new THREE.Color(0xffffff) },
-                pointTexture: { value: this.particleImg },
-            },
-            vertexShader: document.getElementById("vertexshader").textContent,
-            fragmentShader:
-                document.getElementById("fragmentshader").textContent,
-
-            blending: THREE.AdditiveBlending,
-            depthTest: false,
-            transparent: true,
-        })
-
-        this.particles = new THREE.Points(geoParticles, material)
-        this.scene.add(this.particles)
-
-        this.geometryCopy = new THREE.BufferGeometry()
-        this.geometryCopy.copy(this.particles.geometry)
     }
 
     visibleHeightAtZDepth(depth, camera) {
