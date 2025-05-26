@@ -56,8 +56,8 @@ function DesktopLogin() {
                     className="w-full mt-5 font-semibold rounded-md text-md h-15 border-foreground/10 dark:bg-foreground dark:text-background"
                 >
                     <Image
-                        src="/microsoft-icon.png"
-                        alt="Microsoft Icon"
+                        src="/microsoft-logo.png"
+                        alt="Microsoft Logo"
                         width="0"
                         height="0"
                         sizes="100vw"
