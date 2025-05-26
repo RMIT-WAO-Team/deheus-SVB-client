@@ -45,7 +45,7 @@ function DesktopLogin() {
                     width="0"
                     height="0"
                     sizes="100vw"
-                    className="w-full h-auto rounded"
+                    className="w-full h-auto"
                 />
                 <h1 className="text-4xl font-bold text-center">
                     Coordinator Login
@@ -53,7 +53,7 @@ function DesktopLogin() {
                 <Button
                     variant="outline"
                     type="submit"
-                    className="w-full mt-5 font-semibold rounded-md h-15 border-foreground/10 dark:bg-foreground dark:text-background"
+                    className="w-full mt-5 font-semibold rounded-md text-md h-15 border-foreground/10 dark:bg-foreground dark:text-background"
                 >
                     <Image
                         src="/microsoft-icon.png"
@@ -114,7 +114,7 @@ function RoleAsk({ setTab }: { setTab: (value: string) => void }) {
                     width="0"
                     height="0"
                     sizes="100vw"
-                    className="w-full h-auto rounded"
+                    className="w-full h-auto"
                 />
             </div>
             <div className="w-full max-w-md p-8 space-y-4">
@@ -127,7 +127,7 @@ function RoleAsk({ setTab }: { setTab: (value: string) => void }) {
                 </Button>
                 <Button
                     variant="outline"
-                    className="w-full font-semibold border h-15"
+                    className="w-full font-semibold border h-15 border-foreground/10"
                     onClick={() => setTab("driverlogin")}
                 >
                     Driver
@@ -161,7 +161,7 @@ function RequesterLogin({ setTab }: { setTab: (value: string) => void }) {
                 <Button
                     variant="outline"
                     type="submit"
-                    className="w-full mt-5 font-semibold rounded-md h-15 border-foreground/10 dark:bg-foreground dark:text-background"
+                    className="w-full mt-5 font-semibold rounded-md text-md h-15 border-foreground/10 dark:bg-foreground dark:text-background"
                 >
                     <Image
                         src="/microsoft-logo.png"
