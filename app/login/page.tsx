@@ -50,28 +50,25 @@ export default function Login() {
                                 <Input
                                     type="username"
                                     placeholder="Enter your email/username"
-                                    className="shadow-sm border-foreground/10 light:bg-foreground text-foreground h-15 dark:bg-background dark:text-gray-200"
+                                    className="shadow-sm border-foreground/10 h-15"
                                 />
                             </div>
                             <div>
                                 <Input
                                     type="password"
                                     placeholder="Enter your password"
-                                    className="shadow-sm border-foreground/10 light:bg-foreground text-foreground h-15 dark:bg-background dark:text-gray-200"
+                                    className="shadow-sm border-foreground/10 h-15"
                                 />
                             </div>
                             <div className="w-full text-end">
-                                <Link
-                                    href="/support"
-                                    className="text-gray-500 dark:text-gray-400"
-                                >
+                                <Link href="/support" className="text-gray-500">
                                     Forgot Password?
                                 </Link>
                             </div>
                             <Button
                                 variant="outline"
                                 type="submit"
-                                className="w-full font-semibold rounded-md h-15 bg-foreground text-background dark:bg-foreground"
+                                className="w-full font-semibold rounded-md h-15 bg-primary text-background hover:bg-primary/80"
                             >
                                 Login
                             </Button>
@@ -86,7 +83,7 @@ export default function Login() {
                                 <Button
                                     variant="outline"
                                     type="submit"
-                                    className="w-full font-semibold rounded-md text-md h-15 border-foreground/10 dark:bg-foreground dark:text-background"
+                                    className="w-full font-semibold rounded-md text-md h-15 border-foreground/10 hover:bg-foreground/10 hover:text-foreground"
                                 >
                                     <Image
                                         src="/images/microsoft-logo.png"
