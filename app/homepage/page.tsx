@@ -131,7 +131,7 @@ const Homepage = () => {
 				<User />
 			</div>
 			<Button
-				className="absolute bottom-4 right-4 bg-primary"
+				className="absolute bottom-4 right-4 bg-primary text-tiny"
 				onClick={() => {
 					setIsCreating(true);
 				}}
