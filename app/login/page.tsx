@@ -30,8 +30,17 @@ export default function Login() {
                 </div>
             </div>
             <div className="flex flex-col items-center justify-center lg:col-span-2 w-full h-full col-span-3">
-                <div className="w-100">
-                    <div></div>
+                <div className="w-sm h-full flex flex-col justify-between">
+                    <div className="h-40 flex justify-center items-center lg:invisible lg:size-0 w-full">
+                        <Image
+                            src="/images/deheus-logo-full.png"
+                            alt="De Heus Logo Full"
+                            width="0"
+                            height="0"
+                            sizes="100vw"
+                            className="w-auto h-full mt-30 lg:hidden"
+                        />
+                    </div>
                     <div className="p-2.5 space-y-8">
                         <h1 className="text-4xl font-bold text-start">
                             Welcome back!
@@ -94,7 +103,7 @@ export default function Login() {
                     </div>
 
                     <div>
-                        <div className="flex items-center justify-center mt-4">
+                        <div className="flex items-center justify-center mb-4">
                             Need help?&nbsp;
                             <Link
                                 href="/support"
