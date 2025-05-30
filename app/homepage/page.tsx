@@ -1,4 +1,5 @@
 "use client";
+import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
@@ -40,9 +41,22 @@ const Homepage = () => {
 		TripType.OneWay,
 	);
 
+	const ggmap_api_key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+	console.log(process.env);
+	console.log(ggmap_api_key);
+
 	return (
 		<div className="relative min-h-dvh flex justify-center items-center">
-			This is a map
+			{/* TODO: Remove ! */}
+			<APIProvider apiKey={ggmap_api_key!}>
+				<Map
+					style={{ width: "100vw", height: "100vh" }}
+					defaultCenter={{ lat: 10.7298304314686, lng: 106.69395680815829 }}
+					defaultZoom={13}
+					gestureHandling={"greedy"}
+					disableDefaultUI={true}
+				/>
+			</APIProvider>
 			{isCreating && (
 				<div className=" absolute top-0 right-0 bottom-0 left-0 z-10 min-h-dvh flex flex-col p-4 justify-start items-center bg-white">
 					{/* Header */}
@@ -131,7 +145,7 @@ const Homepage = () => {
 				<User />
 			</div>
 			<Button
-				className="absolute bottom-4 right-4 bg-primary text-tiny"
+				className="absolute mb-16 bottom-4 right-4 bg-primary text-tiny"
 				onClick={() => {
 					setIsCreating(true);
 				}}
